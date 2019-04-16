@@ -1,9 +1,11 @@
+// For now just duplicating heavily... resolve that later...
+
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 const url = require('url');
 
-const diffUtils = require('./utils/diff');
+const diffUtils = require('../../utils/diff');
 
 // We can use pretty simple algorithms here...
 function urlDiff(urlStr1, urlStr2) {
@@ -68,7 +70,6 @@ function diffString(str1, str2) {
 }
 
 // adds span with class names for styling the parts the changed.
-// render for html
 function renderDiffText(diffStrArr) {
   let output = diffStrArr
     .map(str => {
@@ -85,6 +86,8 @@ function renderDiffText(diffStrArr) {
 
 // output diff that is up/down...
 function renderTopDiff(str1, str2) {
+  console.log('str1', str1);
+  console.log('str2', str2);
   var diffs = diffUtils.diffChars(str1, str2);
   console.log('diff', diffs);
 
@@ -142,19 +145,15 @@ function renderSideDiff(data) {
 
 // for now just some hacky code...
 function runDiff(e) {
-  var el = document.getElementById('diff-block');
-  // console.log('el', el);
-  // console.log('el.innerHTML', el.innerHTML);
-  var arr = el.value.split('\n');
-
-  var str1 = arr[0];
-  var str2 = arr[1];
+  var el1 = document.getElementById('diff-block-one');
+  var el2 = document.getElementById('diff-block-two');
 
   // FIXME: move this into the sideBySide function?
-  var data = urlDiff(str1, str2);
+  // var data = urlDiff(str1, str2);
 
-  renderSideDiff(data);
-  renderTopDiff(str1, str2);
+  // renderSideDiff(data);
+
+  renderTopDiff(el1.value, el2.value);
 }
 
 function addEventlisteners() {

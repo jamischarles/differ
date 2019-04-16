@@ -73,6 +73,28 @@ function poorMansCharDiff(str1, str2) {
     }
   }
 
+  // if running in test...
+  // FIXME: Add a check for the test runner or the env...
+  // FIXME: is thist a code smell? Should we add this to the test?
+  //
+  // var removeStr = renderDiffTextForConsole(
+  //   splitStringByMatch(str1, str1Matches),
+  //   'remove',
+  // );
+  // var addStr = renderDiffTextForConsole(
+  //   splitStringByMatch(str2, str2Matches),
+  //   'add',
+  // );
+  // console.log('');
+  // console.log(colors.red('-'), removeStr);
+  // console.log(colors.green('+'), addStr);
+
+  // console.log('');
+  // console.log(colors.red('-'), colorizeDiffLine(str1, 'remove', str1Matches));
+  // console.log(colors.green('+'), colorizeDiffLine(str2, 'add', str2Matches));
+  //
+  // console.log('str1Matches', str1Matches);
+
   // assemble strings to output diff report...
   //
   return [
@@ -136,6 +158,7 @@ function findMatchStartEnd(str1, str2, str1Pos, str2Pos) {
 // for now just [{value:'', meta: {isMatch: true}}]
 // FIXME: can we change this so this array is created during the actual match process?
 // FIXME: Simplify this... With unit tests... When we get there...
+// TODO: ADD: when we reach end of string without matches, what then?
 function splitStringByMatch(str, diffData) {
   // split the strings according to where the matches are
   let arr = [];
@@ -166,6 +189,17 @@ function splitStringByMatch(str, diffData) {
 
     // save the letter to buffer
     buffer += str[i];
+  }
+
+  // if we reach the end, and buffer still has letters in it, flush...
+  // this handles cases where it's all match or no match... and if there's only 1 letter...
+  if (buffer.length > 0) {
+    arr.push({
+      value: buffer,
+      meta: {
+        isMatch: currentBufferIsMatch,
+      },
+    });
   }
 
   return arr;
@@ -200,6 +234,55 @@ function colorizeDiffLine(str, addOrRemove, diffData) {
     .join(''); // turn back into string
 
   return output;
+}
+
+function renderDiffTextForConsole(diffStrArr, addOrRemove) {
+  let output = diffStrArr
+    .map(str => {
+      // FIXME: simplify this logic...
+      if (str.meta.isMatch) {
+        if (addOrRemove === 'remove') {
+          return colors.red(str.value);
+        } else {
+          return colors.green(str.value);
+        }
+      } else {
+        if (addOrRemove === 'remove') {
+          return colors.remove(str.value);
+        } else {
+          return colors.add(str.value);
+        }
+      }
+    })
+    .join(''); // turn into string from array
+
+  return output;
+
+  // var output = str
+  //   .split('')
+  //   .map((letter, i) => {
+  //     // return letter;
+  //     // is this in range?
+  //     // if not, then it's not a string match, so highlight it (that means it's added, or removed)
+  //
+  //     // FIXME: clean up this nested if statement
+  //     if (isNumberInRange(i, diffData)) {
+  //       if (addOrRemove === 'remove') {
+  //         return colors.red(letter);
+  //       } else {
+  //         return colors.green(letter);
+  //       }
+  //     } else {
+  //       if (addOrRemove === 'remove') {
+  //         return colors.remove(letter);
+  //       } else {
+  //         return colors.add(letter);
+  //       }
+  //     }
+  //   })
+  //   .join(''); // turn back into string
+  //
+  // return output;
 }
 
 // tells us if the number is in range of string matches

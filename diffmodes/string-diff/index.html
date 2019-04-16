@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>Diff By String</title>
   <style>
     .block {
       display: block;
@@ -66,18 +66,20 @@
   </style>
   </head>
   <body>
-    <h1>Url Diff!</h1>
+    <h1>Diff string (great for minifaction) </h1>
+    Since we expect a HUGE file... We should offer the following inputs:
+    1)File 2) Url 3) Side by side input...
+
+    TODO: 1) Short diffs are buggy right now (3 chars...)
     <!-- All of the Node.js APIs are available in this renderer process. -->
     <!-- We are using Node.js <script>document.write(process.versions.node)</script>, -->
     <!-- Chromium <script>document.write(process.versions.chrome)</script>, -->
     <!-- and Electron <script>document.write(process.versions.electron)</script>. -->
 
-    <div class="navbar"><a href="./diffmodes/string-diff/index.html">String Diff (minified files)</a></div>
+    <div class="navbar"><a href="../../index.html">Url Diff</a></div>
 
-    <textarea id="diff-block" class="diff-input">
-  https://www.msmaster.qa.paypal.com/signin?returnUri=https%3A%2F%2Fwww.msmaster.qa.paypal.com%2Fmyaccount%2Ftransfer&state=%2Fsend%2Fexternal%2Fppme%3Fprofile%3Dsds%26currencyCode%3DUSD%26amount%3D123%26locale.x%3Den_US%26country.x%3DUS%26flowType%3Dsend
-https://www.msmaster.qa.paypal.com/signin?returnUri=https%3A%2F%2Fmsmaster.qa.paypal.com%2Fmyaccount%2Ftransfer%2Fsend%2Fexternal%2Fppme%3Fprofile%3Dsds&currencyCode=USD&amount=120&locale.x=en-us&country.x=US&flowType=send&onboardData={"country.x"%3A"US"%2C"locale.x"%3A"en-us"%2C"intent"%3A"paypalme"%2C"redirect_url"%3A"https%3A%2F%2Fmsmaster.qa.paypal.com%2Fmyaccount%2Ftransfer%2Fsend%2Fexternal%2Fppme%3Fprofile%3Dsds%26currencyCode%3DUSD%26amount%3D120%26locale.x%3Den-us%26country.x%3DUS%26flowType%3Dsend"%2C"sendMoneyText"%3A"Rosalind Douglas %24120.00"}
-    </textarea>
+    <textarea id="diff-block-one" class="diff-input"> </textarea>
+    <textarea id="diff-block-two" class="diff-input"> </textarea>
     <button id="button" class="super-button">Diff!</button>
 
     <div id="topDiff"></div>
@@ -87,7 +89,7 @@ https://www.msmaster.qa.paypal.com/signin?returnUri=https%3A%2F%2Fmsmaster.qa.pa
 
     <script>
       // You can also require other files to run in this process
-      require('./renderer.js')
+      require('./main.js')
     </script>
   </body>
 </html>
