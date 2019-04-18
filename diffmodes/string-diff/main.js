@@ -7,68 +7,6 @@ const url = require('url');
 
 const diffUtils = require('../../utils/diff');
 
-// We can use pretty simple algorithms here...
-function urlDiff(urlStr1, urlStr2) {
-  // split into the various parts and diff each one...
-  const url1 = url.parse(urlStr1);
-  const url2 = url.parse(urlStr2);
-
-  console.log('url1', url1);
-  console.log('url2', url2);
-
-  // don't need to compare keys here, because all the keys are the same...
-  // FIXME: Can we use the json comparision module here? For now just hack it, and then maybe later we can replace the logic here...
-
-  var report = Object.keys(url1)
-    .map(key => {
-      // console.log('key', key);
-      // console.log('url1[key]', url1[key]);
-      // console.log('url2[key]', url2[key]);
-      //
-      // ignore these keys (redundant)
-      if (['search', 'path', 'href'].includes(key)) {
-        return null;
-      }
-
-      let diffObj = {
-        key,
-        values: [url1[key]], // if same, will only have one result
-        // diff: diffString(this.values),
-      };
-
-      // if they aren't the same...
-      if (url1[key] != url2[key]) {
-        diffObj.values.push(url2[key]);
-        // diffObj.diff = diffString(url1[key], url2[key]);
-        diffObj.diff = diffUtils.diffChars(url1[key], url2[key]);
-      }
-      return diffObj;
-    })
-    .filter(item => item !== null); // remove null items (no sparse array)
-
-  console.log('report', report);
-  return report;
-  // compare the parts
-  //
-  // store report on what parts are different (and where they are different (like an AST))
-  // array of differences?
-}
-
-// everything will be based on this...
-// How do I diff the 2 strings and generate a good AST-like report...?
-// let's use this for a minified, string diff... (make this work for a giant single word diff too? because wdiff only works for word spaces...)
-function diffString(str1, str2) {
-  let diffs = [];
-  diffs.push({
-    start: 5,
-    end: 10,
-    old: 'jamis',
-    new: 'jamis22',
-  });
-
-  return diffs;
-}
-
 // adds span with class names for styling the parts the changed.
 function renderDiffText(diffStrArr) {
   let output = diffStrArr
@@ -89,12 +27,15 @@ function renderTopDiff(str1, str2) {
   console.log('str1', str1);
   console.log('str2', str2);
   var diffs = diffUtils.diffChars(str1, str2);
+  var stats = getStats(diffs, str1, str2);
+  console.log('stats', stats);
   console.log('diff', diffs);
 
   let output = `
     <h2>Top/down diff</h2>
-    <div class="old no-wrap">- ${renderDiffText(diffs[0])}</div>
-    <div class="new no-wrap">+ ${renderDiffText(diffs[1])}</div>
+    <div class="stats">${JSON.stringify(stats)}</div>
+    <div class="old no-wrap"><pre>- ${renderDiffText(diffs[0])}</pre></div>
+    <div class="new no-wrap"><pre>+ ${renderDiffText(diffs[1])}</pre></div>
   `;
 
   document.getElementById('topDiff').innerHTML = output;
@@ -135,13 +76,46 @@ function renderSideDiff(data) {
 //
 //
 // Each problem / use case can really be split into 2 parts: 1) The technical code (backend) to make the comparison correctly and efficiently (fast) and 2) displaying the data in a way that makes for a really really great UX.
-//
-//
-// TODO: figure out how to tab the sections...?
-// var firstUrl =
-//   'https://www.msmaster.qa.paypal.com/signin?returnUri=https%3A%2F%2Fwww.msmaster.qa.paypal.com%2Fmyaccount%2Ftransfer&state=%2Fsend%2Fexternal%2Fppme%3Fprofile%3Dsds%26currencyCode%3DUSD%26amount%3D123%26locale.x%3Den_US%26country.x%3DUS%26flowType%3Dsend';
-//
-// var secondUrl = `https://www.msmaster.qa.paypal.com/signin?returnUri=https%3A%2F%2Fmsmaster.qa.paypal.com%2Fmyaccount%2Ftransfer%2Fsend%2Fexternal%2Fppme%3Fprofile%3Dsds&currencyCode=USD&amount=120&locale.x=en-us&country.x=US&flowType=send&onboardData={"country.x"%3A"US"%2C"locale.x"%3A"en-us"%2C"intent"%3A"paypalme"%2C"redirect_url"%3A"https%3A%2F%2Fmsmaster.qa.paypal.com%2Fmyaccount%2Ftransfer%2Fsend%2Fexternal%2Fppme%3Fprofile%3Dsds%26currencyCode%3DUSD%26amount%3D120%26locale.x%3Den-us%26country.x%3DUS%26flowType%3Dsend"%2C"sendMoneyText"%3A"Rosalind Douglas %24120.00"}`;
+
+// array of arrays of strings...
+// We can use this to generate stats of matches, etc...
+function getStats(diffArr, str1, str2) {
+  var totalCharCount = Math.max(str1.length, str2.length); // use the longer string as total
+  var similarCharCount = 0;
+  var oldChunksCount = 0; // old string
+  var newChunksCount = 0; // new string
+
+  // similarity %: [shared chars]/[total chars of longer string] we should be able to get total matches from just the first str diff
+  var diff1 = diffArr[0]; // diff1 is an array of strings with values and matches
+  var diff2 = diffArr[1]; // diff2 is an array of strings with values and matches
+
+  // FIXME: better names?
+  for (var i = 0; i < diff1.length; i++) {
+    var o = diff1[i];
+
+    if (o.meta.isMatch) {
+      similarCharCount += o.value.length;
+    } else {
+      oldChunksCount++;
+    }
+  }
+
+  // get change chunk count for str2 as well
+  diff2.forEach(item => {
+    if (!item.meta.isMatch) newChunksCount++;
+  });
+
+  //
+  //
+  return {
+    similarCharCount,
+    matchPercentage: similarCharCount / totalCharCount * 100,
+    str1Count: str1.length,
+    str2Count: str2.length,
+    str1Chunks: oldChunksCount,
+    str2Chunks: newChunksCount,
+  };
+}
 
 // for now just some hacky code...
 function runDiff(e) {

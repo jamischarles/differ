@@ -1,6 +1,11 @@
 var test = require('tape');
 var colors = require('colors');
 var diffUtils = require('../utils/diff');
+var fs = require('fs');
+
+var jquerySrc = fs.readFileSync('./test/fixtures/jquery.min.js', {
+  encoding: 'utf-8',
+});
 
 colors.setTheme({
   remove: ['red', 'bgRed'],
@@ -51,6 +56,72 @@ test('Diff 3|23', function(t) {
 
 test('Diff 32|332', function(t) {
   var result = diffUtils.diffChars('32', '332');
+  var expected = [
+    [{value: '32', meta: {isMatch: true}}],
+    [
+      {value: '3', meta: {isMatch: false}},
+      {value: '32', meta: {isMatch: true}},
+    ],
+  ];
+
+  t.plan(1); // how many assertions will run?
+  logDiff(result);
+
+  t.deepEqual(result, expected);
+});
+
+// testing spaces
+// FIXME: 2 spaces get swallowed. 3 don't...
+test('Diff "jamis is the bomb"|"jamis is the  bomb"', function(t) {
+  var result = diffUtils.diffChars('jamis is the bomb', 'jamis is the  bomb');
+  var expected = [
+    [{value: '32', meta: {isMatch: true}}],
+    [
+      {value: '3', meta: {isMatch: false}},
+      {value: '32', meta: {isMatch: true}},
+    ],
+  ];
+
+  t.plan(1); // how many assertions will run?
+  logDiff(result);
+
+  t.deepEqual(result, expected);
+});
+
+test('Diff "321"|"123"', function(t) {
+  var result = diffUtils.diffChars('321', '123');
+  var expected = [
+    [{value: '32', meta: {isMatch: true}}],
+    [
+      {value: '3', meta: {isMatch: false}},
+      {value: '32', meta: {isMatch: true}},
+    ],
+  ];
+
+  t.plan(1); // how many assertions will run?
+  logDiff(result);
+
+  t.deepEqual(result, expected);
+});
+
+test('Diff " 321"|" 332"', function(t) {
+  var result = diffUtils.diffChars(' 321', ' 123');
+  var expected = [
+    [{value: '32', meta: {isMatch: true}}],
+    [
+      {value: '3', meta: {isMatch: false}},
+      {value: '32', meta: {isMatch: true}},
+    ],
+  ];
+
+  t.plan(1); // how many assertions will run?
+  logDiff(result);
+
+  t.deepEqual(result, expected);
+});
+
+test('Diff 32|332', function(t) {
+  var result = diffUtils.diffChars('321 ', '123 ');
   var expected = [
     [{value: '32', meta: {isMatch: true}}],
     [
@@ -154,7 +225,30 @@ test('Diff arstrsatjamis|jamisarstrsatadam', function(t) {
   t.deepEqual(result, expected);
 });
 
-// poorMansCharDiff('arstrsatjamis', 'jamisarstrsatadam');
+// technically if the algorithms work on a shorter string, they should be the same accuracy for a longer string. THe pirmary difference will be time spent...
+test.skip('Diff LONG string: jQuery src', function(t) {
+  // Use half of string for now (whole thing is too long...)
+  var str1 = jquerySrc.slice(0, jquerySrc.length / 10);
+  var str2 = str1.slice(0, 400) + str1.slice(500); // jquerySrc with 100 chars removed in middle
+
+  var result = diffUtils.diffChars(str1, str2);
+  var expected = [
+    [
+      {value: 'arstrsat', meta: {isMatch: true}},
+      {value: 'jamis', meta: {isMatch: false}},
+    ],
+    [
+      {value: 'jamis', meta: {isMatch: false}},
+      {value: 'arstrsat', meta: {isMatch: true}},
+      {value: 'adam', meta: {isMatch: false}},
+    ],
+  ];
+
+  t.plan(1); // how many assertions will run?
+  logDiff(result);
+
+  t.deepEqual(result, expected);
+});
 
 /**********************
  * UTIL FNS: TODO: move these out later?

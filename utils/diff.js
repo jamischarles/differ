@@ -23,6 +23,9 @@ colors.setTheme({
 //
 // TODO: set up repo and track differences...
 
+// FIXME:
+// 1) Improve accuracy on long strings. Maybe we pass in a sensitivity measure (how many chars at a time?
+// 2) Improve accuracy at end of string and how we chunk things. When you remove the last item on long string, it severely changes the results...
 function poorMansCharDiff(str1, str2) {
   // Goal: find the common parts between 2 strings. (if % common is very low, then abandon char diffing...)
   // let's start with high threshold, 3 char chunks...
