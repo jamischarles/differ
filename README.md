@@ -10,6 +10,10 @@ Alpha level experiment around a context-aware diffing tool
 
 Some extra context in thread with vjeux: https://twitter.com/Vjeux/status/1264248339849068544
 
+## Interesting projects to look at for techniques:
+https://github.com/discord/endanger#diff
+jest submodules (look for diff ones)
+
 
 ## To Use
 
