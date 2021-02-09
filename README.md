@@ -8,6 +8,8 @@ Alpha level experiment around a context-aware diffing tool
 - [ ] Able to normalize prettier changes across both to detect the real changes
 - [ ] Able to show only the parts that matter in a minified file
 
+Some extra context in thread with vjeux: https://twitter.com/Vjeux/status/1264248339849068544
+
 
 ## To Use
 
