@@ -9,7 +9,13 @@
     "test": "tape test/*.js"
   },
   "repository": "https://github.com/electron/electron-quick-start",
-  "keywords": ["Electron", "quick", "start", "tutorial", "demo"],
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
